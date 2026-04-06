@@ -1,0 +1,17 @@
+name = "family-deep-kinfacew-small-siamese-train"
+algorithm = "family-deep"
+description = "Train the native small Siamese family-deep model on KinFaceW-II using the local workspace images."
+tags = ["family-deep", "native", "kinfacew", "train"]
+
+[parameters]
+mode = "train"
+dataset_name = "kinfacew"
+data_path = "data/kinface"
+model_name = "small_siamese_face_model"
+gpu = 0
+lr = 0.001
+bs = 128
+num_epochs = 1
+pair_type = "ms"
+output_dir = "outputs/family-deep-real/train-logs"
+checkpoints_dir = "outputs/family-deep-real/checkpoints"

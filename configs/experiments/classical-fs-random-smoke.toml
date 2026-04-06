@@ -1,0 +1,11 @@
+name = "classical-fs-random-smoke"
+description = "Fast smoke run for the classical random split pipeline."
+algorithm = "classical"
+tags = ["smoke", "classical"]
+
+[parameters]
+dataset = "KinFaceW-I"
+relation = "fs"
+method = "random"
+limit = 20
+

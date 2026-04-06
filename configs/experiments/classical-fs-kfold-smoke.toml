@@ -1,0 +1,11 @@
+name = "classical-fs-kfold-smoke"
+description = "Fast smoke run for the classical k-fold pipeline."
+algorithm = "classical"
+tags = ["smoke", "classical"]
+
+[parameters]
+dataset = "KinFaceW-I"
+relation = "fs"
+method = "kfold"
+limit = 20
+

@@ -1,0 +1,11 @@
+name = "kinver-fs-smoke"
+description = "Fast smoke run for the Python KinVer implementation."
+algorithm = "kinver"
+tags = ["smoke", "kinver"]
+
+[parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+iterations = 2
+knn = 3
+

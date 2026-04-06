@@ -1,0 +1,58 @@
+name = "native-ports"
+description = "Representative native presets for the family-deep and GAE algorithm families."
+tags = ["family-deep", "gae", "native"]
+
+[[experiments]]
+name = "family-deep-kinfacew-small-siamese-test"
+algorithm = "family-deep"
+description = "Evaluate the native family-deep port against saved KinFaceW-II checkpoints."
+tags = ["family-deep", "native", "test"]
+
+[experiments.parameters]
+mode = "test"
+dataset_name = "kinfacew"
+data_path = "data/kinface"
+model_name = "small_siamese_face_model"
+gpu = 0
+bs = 128
+pair_type = "ms"
+output_dir = "outputs/family-deep-real/test-logs"
+checkpoints_dir = "outputs/family-deep-real/checkpoints"
+
+[[experiments]]
+name = "gae-fs-train-p16-standard"
+algorithm = "gae"
+description = "Native standard GAE on a real father-son patch file."
+tags = ["gae", "native", "standard"]
+
+[experiments.parameters]
+input_path = "data/kinface/traindata/fs_0006_train_p16.mat"
+output_path = "outputs/gae-real/fs_0006_train_p16_standard.mat"
+variant = "standard"
+numfac = 64
+nummap = 32
+learnrate = 0.01
+numepochs = 10
+donorm = true
+verbose = false
+random_state = 1
+subspace_dims = 2
+
+[[experiments]]
+name = "gae-fs-train-p16-multiview"
+algorithm = "gae"
+description = "Native multiview GAE on a real father-son patch file."
+tags = ["gae", "native", "multiview"]
+
+[experiments.parameters]
+input_path = "data/kinface/traindata/fs_0006_train_p16.mat"
+output_path = "outputs/gae-real/fs_0006_train_p16_multiview.mat"
+variant = "multiview"
+numfac = 64
+nummap = 32
+learnrate = 0.01
+numepochs = 10
+donorm = true
+verbose = false
+random_state = 1
+subspace_dims = 2

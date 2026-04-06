@@ -1,0 +1,52 @@
+name = "supported-smoke"
+description = "Smoke benchmark across all currently supported algorithm families."
+tags = ["smoke", "benchmark"]
+
+[[experiments]]
+name = "classical-fs-random-smoke"
+algorithm = "classical"
+description = "Random split classical baseline."
+tags = ["smoke", "classical"]
+
+[experiments.parameters]
+dataset = "KinFaceW-I"
+relation = "fs"
+method = "random"
+limit = 20
+
+[[experiments]]
+name = "classical-fs-kfold-smoke"
+algorithm = "classical"
+description = "K-fold classical baseline."
+tags = ["smoke", "classical"]
+
+[experiments.parameters]
+dataset = "KinFaceW-I"
+relation = "fs"
+method = "kfold"
+limit = 20
+
+[[experiments]]
+name = "classical-fs-chisq-smoke"
+algorithm = "classical"
+description = "Chi-square distance baseline."
+tags = ["smoke", "classical", "chisq"]
+
+[experiments.parameters]
+dataset = "KinFaceW-I"
+relation = "fs"
+method = "chisq"
+limit = 20
+
+[[experiments]]
+name = "kinver-fs-smoke"
+algorithm = "kinver"
+description = "KinVer smoke benchmark."
+tags = ["smoke", "kinver"]
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+iterations = 2
+knn = 3
+

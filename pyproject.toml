@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kinship"
+version = "0.1.0"
+description = "Unified Python toolkit for the kinship verification projects bundled in this workspace."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "pandas",
+    "matplotlib",
+    "pillow",
+    "scikit-image",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+deep = [
+    "facenet-pytorch",
+    "tqdm",
+    "torch",
+    "torchfile",
+    "torchvision",
+]
+
+[project.scripts]
+kinship = "kinship.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

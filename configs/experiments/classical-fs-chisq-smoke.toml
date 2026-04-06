@@ -1,0 +1,11 @@
+name = "classical-fs-chisq-smoke"
+description = "Fast smoke run for the chi-square classical pipeline."
+algorithm = "classical"
+tags = ["smoke", "classical", "chisq"]
+
+[parameters]
+dataset = "KinFaceW-I"
+relation = "fs"
+method = "chisq"
+limit = 20
+

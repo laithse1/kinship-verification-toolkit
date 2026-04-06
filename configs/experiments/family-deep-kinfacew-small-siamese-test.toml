@@ -1,0 +1,15 @@
+name = "family-deep-kinfacew-small-siamese-test"
+algorithm = "family-deep"
+description = "Evaluate the trained native small Siamese family-deep checkpoints on KinFaceW-II."
+tags = ["family-deep", "native", "kinfacew", "test"]
+
+[parameters]
+mode = "test"
+dataset_name = "kinfacew"
+data_path = "data/kinface"
+model_name = "small_siamese_face_model"
+gpu = 0
+bs = 128
+pair_type = "ms"
+output_dir = "outputs/family-deep-real/test-logs"
+checkpoints_dir = "outputs/family-deep-real/checkpoints"

@@ -1,0 +1,17 @@
+name = "gae-fs-train-p16-multiview"
+algorithm = "gae"
+description = "Run the native multiview GAE mapper on a real father-son training patch file."
+tags = ["gae", "native", "multiview", "kinfacew"]
+
+[parameters]
+input_path = "data/kinface/traindata/fs_0006_train_p16.mat"
+output_path = "outputs/gae-real/fs_0006_train_p16_multiview.mat"
+variant = "multiview"
+numfac = 64
+nummap = 32
+learnrate = 0.01
+numepochs = 10
+donorm = true
+verbose = false
+random_state = 1
+subspace_dims = 2
