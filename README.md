@@ -68,6 +68,79 @@ With this toolkit, we can:
 
 In other words, this is not just an implementation repo. It is a **research infrastructure repo** for kinship verification.
 
+## End-to-End Flow
+
+The diagram below shows how the toolkit turns datasets, pair metadata, and feature inputs into reproducible kinship-verification results.
+
+```mermaid
+flowchart TD
+    U[Researcher / CLI User]
+    C[run_kinship.py / kinship.cli]
+    CFG[Experiment Configs / Benchmark Presets]
+    R[Runner + Registry]
+
+    D1[KinFaceW Images + Pair Metadata]
+    D2[KinVer Feature Matrices]
+    D3[GAE Pair Feature Files]
+    D4[FIW Metadata and Optional Face Images]
+
+    A1[Classical Pipeline]
+    A2[KinVer Pipeline]
+    A3[Family-Deep Pipeline]
+    A4[GAE Pipeline]
+
+    F1[Patch / HOG / LBP Pair Features]
+    F2[Feature Fusion + Selection + PCA + MNRML]
+    F3[Pairwise CNN / Siamese / Deep Embeddings]
+    F4[Gated Pair Representation Learning]
+
+    M1[SVM / Verification Score]
+    M2[Metric-Learning Classification]
+    M3[Kin / Non-Kin Probability]
+    M4[Mapped Pair Representations]
+
+    O[Outputs: JSON, CSV, Plots, Checkpoints, .mat Files]
+
+    U --> C
+    CFG --> C
+    C --> R
+
+    R --> A1
+    R --> A2
+    R --> A3
+    R --> A4
+
+    D1 --> A1
+    D1 --> A3
+    D2 --> A2
+    D3 --> A4
+    D4 --> A3
+
+    A1 --> F1 --> M1 --> O
+    A2 --> F2 --> M2 --> O
+    A3 --> F3 --> M3 --> O
+    A4 --> F4 --> M4 --> O
+```
+
+### What Each Branch Means
+
+- `classical`
+  - starts from face pairs
+  - extracts handcrafted pair descriptors
+  - uses classical verification models such as SVM-based decision boundaries
+- `kinver`
+  - starts from bundled feature matrices
+  - performs feature fusion, selection, projection, and fold-wise evaluation
+  - returns relationship-specific verification accuracy
+- `family-deep`
+  - starts from paired face images
+  - learns similarity through native deep models
+  - produces kin / non-kin predictions, metrics, and checkpoints
+- `gae`
+  - starts from left/right pair feature matrices
+  - learns gated pairwise structure representations
+  - writes mapped features for downstream research workflows
+
 ## Repository Layout
 
 ```text
