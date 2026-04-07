@@ -75,5 +75,26 @@ def family_project_root() -> Path:
     )
 
 
+def fiw_metadata_root() -> Path:
+    return resolve_existing_aliases(
+        [
+            ("family", "data"),
+            ("data", "family", "data"),
+            ("Family-Kinship-Recognition--main", "Family-Kinship-Recognition--main", "data"),
+        ]
+    )
+
+
+def fiw_images_root() -> Path:
+    return resolve_existing_aliases(
+        [
+            ("FIDs", "FIDs"),
+            ("data", "FIDs", "FIDs"),
+            ("family", "train-faces"),
+            ("Family-Kinship-Recognition--main", "Family-Kinship-Recognition--main", "train-faces"),
+        ]
+    )
+
+
 def gae_project_root() -> Path:
     return kinface_workspace_root() / "Source Code Matlab" / "common" / "methods" / "gae"

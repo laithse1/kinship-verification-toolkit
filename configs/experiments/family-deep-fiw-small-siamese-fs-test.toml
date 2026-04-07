@@ -1,0 +1,16 @@
+name = "family-deep-fiw-small-siamese-fs-test"
+algorithm = "family-deep"
+description = "Evaluate the native small Siamese family-deep model on the repo-local FIW FIDs image bundle for the father-son relation."
+tags = ["family-deep", "native", "fiw", "fs", "test"]
+
+[parameters]
+mode = "test"
+dataset_name = "fiw"
+data_path = "data/FIDs/FIDs"
+model_name = "small_siamese_face_model"
+gpu = 0
+bs = 256
+pair_type = "ms"
+pair_types = ["fs"]
+output_dir = "outputs/family-deep-fiw-fs/test-logs"
+checkpoints_dir = "outputs/family-deep-fiw-fs/checkpoints"

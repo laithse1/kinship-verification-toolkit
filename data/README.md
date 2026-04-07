@@ -12,8 +12,12 @@ This repository includes the runtime data needed by the maintained toolkit under
   - `data-KinFaceW-II`
 - `data/family/data`
   - FIW pair metadata CSV files used by the native `family-deep` pipeline
+- `data/FIDs`
+  - local FIW FIDs image bundle
+  - optional FIW feature exports and supporting FIW CSV metadata
 
-Current limitation:
+Notes:
 
-- FIW face image folders are not bundled here because they were not present in the original workspace.
-- As a result, `family-deep --dataset-name fiw ...` has the metadata it needs, but still requires the actual FIW image files if you want to run that path end-to-end.
+- The maintained `family-deep` pipeline now supports the repo-local `data/FIDs/FIDs` layout directly.
+- The large FIW assets under `data/FIDs` are intentionally git-ignored so the GitHub repository stays lightweight.
+- Some FIW metadata rows may reference face crops that are not present in a given local export. The loader resolves alternate crops for the same PID when possible and skips unresolved pairs automatically.

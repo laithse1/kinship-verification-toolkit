@@ -4,7 +4,8 @@ import importlib
 from pathlib import Path
 
 from kinship.paths import (
-    family_project_root,
+    fiw_images_root,
+    fiw_metadata_root,
     kinface_workspace_root,
     resolve_user_path,
     workspace_root,
@@ -49,6 +50,7 @@ def run_family_deep(
     img1: str | None = None,
     img2: str | None = None,
     pair_type: str = "ms",
+    pair_types: list[str] | None = None,
     output_dir: str | None = None,
     checkpoints_dir: str | None = None,
     vgg_weights: str | None = None,
@@ -65,15 +67,22 @@ def run_family_deep(
         raise ValueError("dataset_name must be 'fiw' or 'kinfacew'")
     if mode not in {"train", "test", "demo"}:
         raise ValueError("mode must be one of: train, test, demo")
+    if pair_types is None:
+        resolved_pair_types = ["fd", "ms", "md", "fs"]
+    else:
+        resolved_pair_types = [pair.lower() for pair in pair_types]
+        invalid = sorted(set(resolved_pair_types) - {"fd", "fs", "md", "ms"})
+        if invalid:
+            raise ValueError(f"pair_types contains unsupported values: {', '.join(invalid)}")
 
     from kinship.algorithms._family_deep_runtime import FamilyDeepTrainer
 
     if data_path is None:
-        data_root = kinface_workspace_root() if dataset_name == "kinfacew" else family_project_root()
+        data_root = kinface_workspace_root() if dataset_name == "kinfacew" else fiw_images_root()
     else:
         data_root = resolve_user_path(data_path)
 
-    metadata_dir = family_project_root() / "data"
+    metadata_dir = fiw_metadata_root()
     logs_dir = resolve_user_path(output_dir) if output_dir else workspace_root() / "outputs" / "family-deep-native" / "logs"
     ckpt_dir = resolve_user_path(checkpoints_dir) if checkpoints_dir else workspace_root() / "outputs" / "family-deep-native" / "checkpoints"
     trainer = FamilyDeepTrainer(
@@ -86,7 +95,7 @@ def run_family_deep(
         dataset=dataset_name,
         dataset_path=data_root,
         metadata_dir=metadata_dir,
-        kin_pairs=["fd", "ms", "md", "fs"],
+        kin_pairs=resolved_pair_types,
         batch_size=bs,
         gpu_id=gpu,
         logs_dir=logs_dir,

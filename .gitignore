@@ -1,15 +1,28 @@
+# Python caches and build artifacts
 __pycache__/
 *.pyc
 .pytest_cache/
-outputs/
-.coverage
-.venv/
+.mypy_cache/
+.ruff_cache/
 build/
 dist/
 *.egg-info/
-.mypy_cache/
-.ruff_cache/
+
+# Virtual environments and local tooling
+.venv/
 .idea/
 .vscode/
+
+# Test, coverage, and run artifacts
+outputs/
+.coverage
+*.log
+
+# Large local datasets that should not be pushed
+data/FIDs/
+
+# OS and notebook noise
+.ipynb_checkpoints/
 Thumbs.db
 Desktop.ini
+.DS_Store

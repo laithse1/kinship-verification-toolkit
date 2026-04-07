@@ -92,6 +92,7 @@ def _family_deep_command(args: argparse.Namespace) -> int:
         "img1": args.img1,
         "img2": args.img2,
         "pair_type": args.pair_type,
+        "pair_types": args.pair_types,
         "checkpoints_dir": args.checkpoints_dir,
         "vgg_weights": args.vgg_weights,
     }
@@ -291,6 +292,7 @@ def build_parser() -> argparse.ArgumentParser:
     family_deep.add_argument("--img1", default=None)
     family_deep.add_argument("--img2", default=None)
     family_deep.add_argument("--pair-type", choices=["fd", "fs", "md", "ms"], default="ms")
+    family_deep.add_argument("--pair-types", nargs="+", choices=["fd", "fs", "md", "ms"], default=None)
     family_deep.add_argument("--output-dir", default=None)
     family_deep.add_argument("--output-root", default=None)
     family_deep.add_argument("--checkpoints-dir", default=None)

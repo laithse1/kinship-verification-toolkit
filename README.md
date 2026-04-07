@@ -5,6 +5,8 @@
 ![Toolkit](https://img.shields.io/badge/Toolkit-Unified%20Experiments-1F2937?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Repo%20Ready-2E8B57?style=for-the-badge)
 
+![alt text](assests/Kinship-verification.png)
+
 A unified research toolkit for **kinship verification from face imagery**.
 
 This repository brings together multiple strands of kinship-verification research into one maintainable Python codebase. Instead of scattered scripts, mixed runtimes, and dataset-specific entrypoints, the toolkit provides a single place to run, compare, reproduce, and extend experiments across classical feature pipelines, metric-learning methods, deep models, and Gated Autoencoder style representation learning.
@@ -82,7 +84,7 @@ flowchart TD
     D1[KinFaceW Images + Pair Metadata]
     D2[KinVer Feature Matrices]
     D3[GAE Pair Feature Files]
-    D4[FIW Metadata and Optional Face Images]
+    D4[Local FIW FIDs Images and Metadata]
 
     A1[Classical Pipeline]
     A2[KinVer Pipeline]
@@ -198,11 +200,14 @@ Bundled repo-local data:
   - `data-KinFaceW-II`
 - `data/family/data`
   - FIW metadata CSV files
+- `data/FIDs`
+  - local FIW FIDs image bundle and supporting FIW metadata when available
 
-Current limitation:
+FIW note:
 
-- FIW face image folders are not bundled because they were not present in the original workspace
-- This means `family-deep --dataset-name fiw` is structurally supported, but still requires the actual FIW face images if you want to run that path end-to-end
+- The maintained `family-deep` pipeline now supports the repo-local `data/FIDs/FIDs` layout directly
+- These FIW assets are intentionally git-ignored because they are large and should stay local rather than being pushed to GitHub
+- The loader resolves mismatched FIW face indices within the expected family folder when possible and skips unresolved pairs when a local export is incomplete
 
 See [data/README.md](data/README.md) for the bundled data note.
 
@@ -316,7 +321,39 @@ Important:
 - this test preset expects the fold checkpoints produced by the train preset
 - if checkpoints do not exist yet, run the train preset first
 
-## 7. Run a benchmark preset
+## 7. Train the native deep kinship model on local FIW FIDs data
+
+```powershell
+python run_kinship.py run-config family-deep-fiw-small-siamese-fs-train
+```
+
+What this does:
+
+- loads FIW pair metadata from `data/family/data`
+- resolves paired face images from `data/FIDs/FIDs`
+- trains the native `small_siamese_face_model`
+- writes logs to `outputs/family-deep-fiw-real/train-logs`
+- saves pair-type checkpoints under `outputs/family-deep-fiw-real/checkpoints`
+
+## 8. Test the trained FIW model
+
+```powershell
+python run_kinship.py run-config family-deep-fiw-small-siamese-fs-test
+```
+
+Important:
+
+- this test preset expects the checkpoints produced by the FIW train preset
+- if checkpoints do not exist yet, run the FIW train preset first
+
+For a lighter end-to-end FIW validation on CPU, you can run a single relationship type directly:
+
+```powershell
+python run_kinship.py family-deep --mode train --dataset-name fiw --data-path data/FIDs/FIDs --model-name small_siamese_face_model --bs 256 --num-epochs 1 --pair-types fs --output-dir outputs/family-deep-fiw-fs/train-logs --checkpoints-dir outputs/family-deep-fiw-fs/checkpoints
+python run_kinship.py family-deep --mode test --dataset-name fiw --data-path data/FIDs/FIDs --model-name small_siamese_face_model --bs 256 --pair-types fs --output-dir outputs/family-deep-fiw-fs/test-logs --checkpoints-dir outputs/family-deep-fiw-fs/checkpoints
+```
+
+## 9. Run a benchmark preset
 
 ```powershell
 python run_kinship.py benchmark native-ports
@@ -339,6 +376,13 @@ python run_kinship.py run-config kinver-fs-smoke
 python run_kinship.py run-config gae-fs-train-p16-standard
 python run_kinship.py run-config family-deep-kinfacew-small-siamese-train
 python run_kinship.py run-config family-deep-kinfacew-small-siamese-test
+```
+
+If you have local FIW assets under `data/FIDs`, you can also run:
+
+```powershell
+python run_kinship.py run-config family-deep-fiw-small-siamese-fs-train
+python run_kinship.py run-config family-deep-fiw-small-siamese-fs-test
 ```
 
 ## Outputs and Reproducibility

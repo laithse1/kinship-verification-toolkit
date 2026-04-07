@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 import pandas as pd
 from scipy.io import loadmat
@@ -18,14 +19,87 @@ class FIWDataset(Dataset):
         self.color_space = color_space
         self.labels_df = pd.read_csv(self.metadata_dir / f"{self.set_name}-pairs-full.csv")
         self.labels_df = self.labels_df[self.labels_df.ptype == self.pair_type]
+        self._path_cache: dict[str, Path] = {}
+        self._pid_cache: dict[tuple[str, ...], list[Path]] = {}
+        self.skipped_pairs = 0
+        self.labels_df = self._drop_unresolved_pairs(self.labels_df)
 
     def __len__(self) -> int:
         return len(self.labels_df)
 
-    def get_image_path(self, image_name: str) -> Path:
+    @staticmethod
+    def _requested_face_index(image_name: str) -> int:
+        match = re.search(r"_face(\d+)$", Path(image_name).stem)
+        return int(match.group(1)) if match else 0
+
+    @staticmethod
+    def _available_face_index(path: Path) -> int:
+        return FIWDataset._requested_face_index(path.name)
+
+    def _legacy_image_path(self, image_name: str) -> Path:
         split = "val" if self.set_name == "test" else self.set_name
         split = "train" if split not in {"train", "val"} else split
         return self.dataset_root / f"{split}-faces" / image_name
+
+    def _fids_candidates(self, image_name: str) -> list[Path]:
+        parts = Path(image_name).parts
+        if len(parts) < 3:
+            return []
+        family_id, mid = parts[0], parts[1]
+        requested_index = self._requested_face_index(image_name)
+        pid = Path(parts[-1]).stem.split("_face", 1)[0]
+        cache_key = (family_id, mid, pid)
+        if cache_key not in self._pid_cache:
+            mid_dir = self.dataset_root / family_id / mid
+            family_dir = self.dataset_root / family_id
+            if mid_dir.exists():
+                matches = sorted(mid_dir.glob(f"{pid}_*.jpg"), key=self._available_face_index)
+            elif family_dir.exists():
+                matches = sorted(family_dir.glob(f"**/{pid}_*.jpg"), key=self._available_face_index)
+            else:
+                matches = []
+            self._pid_cache[cache_key] = matches
+        return sorted(
+            self._pid_cache[cache_key],
+            key=lambda path: (abs(self._available_face_index(path) - requested_index), self._available_face_index(path), str(path)),
+        )
+
+    def get_image_path(self, image_name: str) -> Path:
+        if image_name in self._path_cache:
+            return self._path_cache[image_name]
+
+        direct_path = self.dataset_root / image_name
+        if direct_path.exists():
+            self._path_cache[image_name] = direct_path
+            return direct_path
+
+        legacy_path = self._legacy_image_path(image_name)
+        if legacy_path.exists():
+            self._path_cache[image_name] = legacy_path
+            return legacy_path
+
+        candidates = self._fids_candidates(image_name)
+        if candidates:
+            self._path_cache[image_name] = candidates[0]
+            return candidates[0]
+
+        raise FileNotFoundError(
+            f"Unable to resolve FIW image '{image_name}' under dataset root '{self.dataset_root}'."
+        )
+
+    def _drop_unresolved_pairs(self, labels_df: pd.DataFrame) -> pd.DataFrame:
+        missing_images: set[str] = set()
+        unique_images = pd.unique(labels_df[["p1", "p2"]].to_numpy().ravel())
+        for image_name in unique_images:
+            try:
+                self.get_image_path(str(image_name))
+            except FileNotFoundError:
+                missing_images.add(str(image_name))
+        if not missing_images:
+            return labels_df.reset_index(drop=True)
+        mask = ~labels_df["p1"].isin(missing_images) & ~labels_df["p2"].isin(missing_images)
+        self.skipped_pairs = int((~mask).sum())
+        return labels_df.loc[mask].reset_index(drop=True)
 
     def __getitem__(self, idx: int) -> dict:
         row = self.labels_df.iloc[idx]

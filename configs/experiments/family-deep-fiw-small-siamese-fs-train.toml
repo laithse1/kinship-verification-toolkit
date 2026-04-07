@@ -1,0 +1,18 @@
+name = "family-deep-fiw-small-siamese-fs-train"
+algorithm = "family-deep"
+description = "Train the native small Siamese family-deep model on the repo-local FIW FIDs image bundle for the father-son relation."
+tags = ["family-deep", "native", "fiw", "fs", "train"]
+
+[parameters]
+mode = "train"
+dataset_name = "fiw"
+data_path = "data/FIDs/FIDs"
+model_name = "small_siamese_face_model"
+gpu = 0
+lr = 0.001
+bs = 256
+num_epochs = 1
+pair_type = "ms"
+pair_types = ["fs"]
+output_dir = "outputs/family-deep-fiw-fs/train-logs"
+checkpoints_dir = "outputs/family-deep-fiw-fs/checkpoints"

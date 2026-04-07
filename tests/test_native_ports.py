@@ -5,9 +5,11 @@ import shutil
 import uuid
 
 import numpy as np
+import pandas as pd
 import scipy.io as sio
 
 from kinship.algorithms import family_deep_native
+from kinship.algorithms._family_deep_data import FIWDataset
 from kinship.algorithms.family_deep_native import run_family_deep
 from kinship.algorithms.gae_native import run_gae
 from kinship.paths import workspace_root
@@ -125,5 +127,42 @@ def test_native_gae_accepts_project_feature_keys() -> None:
         assert result.output_path == str(output_path)
         assert saved["wxf"].shape == (9, 5)
         assert saved["wyf"].shape == (9, 5)
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+def test_fiw_dataset_resolves_fids_face_index_mismatches() -> None:
+    temp_dir = _workspace_temp_dir("fiw-fids-resolution")
+    try:
+        dataset_root = temp_dir / "FIDs"
+        metadata_dir = temp_dir / "metadata"
+        mid_dir = dataset_root / "F0001" / "MID1"
+        child_dir = dataset_root / "F0001" / "MID3"
+        mid_dir.mkdir(parents=True, exist_ok=True)
+        child_dir.mkdir(parents=True, exist_ok=True)
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+
+        (mid_dir / "P00001_face2.jpg").write_bytes(b"fake-parent")
+        (child_dir / "P00006_face1.jpg").write_bytes(b"fake-child")
+        pd.DataFrame(
+            [
+                {
+                    "p1": "F0001/MID1/P00001_face0.jpg",
+                    "p2": "F0001/MID3/P00006_face0.jpg",
+                    "ptype": "fs",
+                    "label": 1,
+                }
+            ]
+        ).to_csv(metadata_dir / "train-pairs-full.csv", index=False)
+
+        dataset = FIWDataset(
+            dataset_root=dataset_root,
+            metadata_dir=metadata_dir,
+            pair_type="fs",
+            set_name="train",
+        )
+
+        assert dataset.get_image_path("F0001/MID1/P00001_face0.jpg") == mid_dir / "P00001_face2.jpg"
+        assert dataset.get_image_path("F0001/MID3/P00006_face0.jpg") == child_dir / "P00006_face1.jpg"
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
