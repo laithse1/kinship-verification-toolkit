@@ -11,6 +11,10 @@ A unified research toolkit for **kinship verification from face imagery**.
 
 This repository brings together multiple strands of kinship-verification research into one maintainable Python codebase. Instead of scattered scripts, mixed runtimes, and dataset-specific entrypoints, the toolkit provides a single place to run, compare, reproduce, and extend experiments across classical feature pipelines, metric-learning methods, deep models, and Gated Autoencoder style representation learning.
 
+In addition to the bundled public benchmarks, the toolkit now supports a local private dataset adapter for richer in-house collections, including age-variant families, named family archives, and identical-twin subsets.
+
+One of the strongest assets behind this project is a **fully curated in-house kinship dataset collected from scratch by the project author**. It extends the research beyond standard public benchmarks by covering richer family structures, age variation, and identical-twin material that are difficult to find together in a single collection.
+
 ## Why This Project Matters
 
 Kinship verification sits at the intersection of:
@@ -64,11 +68,34 @@ With this toolkit, we can:
 
 - compare classical vs learned methods under one framework
 - study representation transfer across KinFaceW and FIW-style settings
+- stage and inspect private kinship datasets without mixing them into the public repository
 - inspect how feature-level and embedding-level methods differ
 - benchmark reproducibility without switching languages or toolchains
 - extend the project with new backbones, new datasets, and new evaluation protocols
 
 In other words, this is not just an implementation repo. It is a **research infrastructure repo** for kinship verification.
+
+## In-House Dataset Contribution
+
+Beyond the public benchmark support, this project is backed by a **substantial original dataset contribution**.
+
+The local private collection under `data/mydataset` was assembled from scratch and gives the project a much broader experimental base than public kinship benchmarks alone. On the current workstation copy, the toolkit detects:
+
+- `10` subsets
+- `220` inferred family groups
+- `805` people
+- `2,318` images
+
+What makes this collection especially valuable is its diversity:
+
+- conventional parent-child and sibling family structure
+- named-family archives collected as coherent family groups
+- age-centric subsets for cross-age kinship analysis
+- identical-twin material that opens the door to much harder resemblance studies
+
+This matters because public kinship datasets are often narrow in scope. A richer private collection makes it possible to explore harder and more realistic questions around age variation, resemblance ambiguity, family composition, and twin-specific similarity.
+
+For privacy, licensing, and repository-size reasons, this dataset remains local-only and is intentionally not pushed to GitHub. The toolkit therefore treats it as a **first-class private research asset** rather than a bundled public benchmark.
 
 ## End-to-End Flow
 
@@ -202,12 +229,22 @@ Bundled repo-local data:
   - FIW metadata CSV files
 - `data/FIDs`
   - local FIW FIDs image bundle and supporting FIW metadata when available
+- `data/mydataset`
+  - local private kinship dataset staging area with diverse family, age, and identical-twin subsets
 
 FIW note:
 
 - The maintained `family-deep` pipeline now supports the repo-local `data/FIDs/FIDs` layout directly
 - These FIW assets are intentionally git-ignored because they are large and should stay local rather than being pushed to GitHub
 - The loader resolves mismatched FIW face indices within the expected family folder when possible and skips unresolved pairs when a local export is incomplete
+
+Private dataset note:
+
+- The toolkit now includes a native `mydataset` adapter for local-only research collections under `data/mydataset`
+- On the current local copy, the adapter discovers `10` subsets, `220` inferred family groups, `805` people, and `2,318` images
+- The detected collection spans age-focused subsets, named-family archives, and an identical-twins subset
+- This in-house dataset is a major research contribution of the project because it was built from scratch and broadens the problem setting beyond standard public benchmarks
+- These assets are intentionally git-ignored and are meant for local experimentation only
 
 See [data/README.md](data/README.md) for the bundled data note.
 
@@ -365,6 +402,36 @@ This benchmark runs representative native experiments and produces:
 - benchmark `summary.json`
 - benchmark `summary.csv`
 
+## 10. Summarize the private local dataset
+
+```powershell
+python run_kinship.py mydataset summary
+```
+
+This scans `data/mydataset` and reports inferred subset, family, person, and image counts without moving or modifying the private data.
+
+To export a JSON summary:
+
+```powershell
+python run_kinship.py mydataset summary --output-path outputs/mydataset/mydataset_summary.json
+```
+
+## 11. Export manifests from the private local dataset
+
+Image-level inventory:
+
+```powershell
+python run_kinship.py mydataset export-inventory --output-path outputs/mydataset/mydataset_inventory.csv
+```
+
+Pair manifest for a subset:
+
+```powershell
+python run_kinship.py mydataset export-pairs --subset myDataSet_102 --output-path outputs/mydataset/mydataset_pairs.csv
+```
+
+On the current local copy, the `myDataSet_102` pair export produced `2,373` pairs: `2,044` positive kin pairs and `329` sampled non-kin pairs.
+
 ## Recommended First Run Path
 
 If you want the fastest path to confirm the repo is healthy:
@@ -405,6 +472,7 @@ This structure is designed for:
 - side-by-side comparison
 - reproducible reruns
 - easy export into papers, reports, and notebooks
+- local private-dataset staging without contaminating the public Git history
 
 ## Example Research Workflows
 
@@ -458,6 +526,7 @@ It should be used thoughtfully and with appropriate ethical, legal, and institut
 
 - unified maintained Python codebase
 - repo-local bundled runtime data
+- local private-dataset adapter and manifest export tools
 - native algorithm implementations
 - config-driven experiments
 - benchmark presets

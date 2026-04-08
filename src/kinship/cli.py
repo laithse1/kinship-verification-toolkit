@@ -14,6 +14,12 @@ from kinship.configs import (
     load_benchmark_config,
     load_experiment_config,
 )
+from kinship.datasets.mydataset import (
+    export_mydataset_inventory,
+    export_mydataset_pairs,
+    export_mydataset_summary,
+    summarize_mydataset,
+)
 from kinship.registry import algorithm_names
 from kinship.runner import run_benchmark, run_experiment
 
@@ -240,6 +246,40 @@ def _benchmark_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def _mydataset_summary_command(args: argparse.Namespace) -> int:
+    summary = summarize_mydataset()
+    payload = {
+        "root": summary.root,
+        "subset_count": summary.subset_count,
+        "family_count": summary.family_count,
+        "person_count": summary.person_count,
+        "image_count": summary.image_count,
+        "subsets": summary.subsets,
+    }
+    if args.output_path:
+        export_mydataset_summary(Path(args.output_path))
+    _dump(payload)
+    return 0
+
+
+def _mydataset_inventory_command(args: argparse.Namespace) -> int:
+    output_path = export_mydataset_inventory(Path(args.output_path))
+    _dump({"output_path": str(output_path)})
+    return 0
+
+
+def _mydataset_pairs_command(args: argparse.Namespace) -> int:
+    output_path = export_mydataset_pairs(
+        output_path=Path(args.output_path),
+        subset=args.subset,
+        max_positive_pairs_per_person_pair=args.max_positive_pairs_per_person_pair,
+        negative_ratio=args.negative_ratio,
+        random_state=args.random_state,
+    )
+    _dump({"output_path": str(output_path)})
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Kinship verification toolkit")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -335,6 +375,43 @@ def build_parser() -> argparse.ArgumentParser:
     benchmark.add_argument("config")
     benchmark.add_argument("--output-root", default=None)
     benchmark.set_defaults(func=_benchmark_command)
+
+    mydataset = subparsers.add_parser(
+        "mydataset",
+        help="Inspect and export manifests for the local private mydataset collection",
+    )
+    mydataset_subparsers = mydataset.add_subparsers(dest="mydataset_command", required=True)
+
+    mydataset_summary = mydataset_subparsers.add_parser(
+        "summary",
+        help="Summarize the local mydataset collection",
+    )
+    mydataset_summary.add_argument("--output-path", default=None)
+    mydataset_summary.set_defaults(func=_mydataset_summary_command)
+
+    mydataset_inventory = mydataset_subparsers.add_parser(
+        "export-inventory",
+        help="Export an image-level manifest for mydataset",
+    )
+    mydataset_inventory.add_argument(
+        "--output-path",
+        default="outputs/mydataset/mydataset_inventory.csv",
+    )
+    mydataset_inventory.set_defaults(func=_mydataset_inventory_command)
+
+    mydataset_pairs = mydataset_subparsers.add_parser(
+        "export-pairs",
+        help="Export a pair manifest from mydataset for downstream experiments",
+    )
+    mydataset_pairs.add_argument(
+        "--output-path",
+        default="outputs/mydataset/mydataset_pairs.csv",
+    )
+    mydataset_pairs.add_argument("--subset", default=None)
+    mydataset_pairs.add_argument("--max-positive-pairs-per-person-pair", type=int, default=20)
+    mydataset_pairs.add_argument("--negative-ratio", type=float, default=1.0)
+    mydataset_pairs.add_argument("--random-state", type=int, default=42)
+    mydataset_pairs.set_defaults(func=_mydataset_pairs_command)
 
     return parser
 

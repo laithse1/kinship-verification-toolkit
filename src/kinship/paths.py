@@ -75,6 +75,15 @@ def family_project_root() -> Path:
     )
 
 
+def mydataset_root() -> Path:
+    return resolve_existing_aliases(
+        [
+            ("mydataset",),
+            ("data", "mydataset"),
+        ]
+    )
+
+
 def fiw_metadata_root() -> Path:
     return resolve_existing_aliases(
         [

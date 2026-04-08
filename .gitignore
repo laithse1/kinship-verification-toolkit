@@ -20,6 +20,7 @@ outputs/
 
 # Large local datasets that should not be pushed
 data/FIDs/
+data/mydataset/
 
 # OS and notebook noise
 .ipynb_checkpoints/
