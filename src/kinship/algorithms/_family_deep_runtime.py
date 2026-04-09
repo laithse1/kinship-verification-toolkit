@@ -463,6 +463,7 @@ class FamilyDeepTrainer:
         pair_results: dict[str, dict] = {}
         for pair_type in self.kin_pairs:
             fold_metrics = []
+            fold_evaluators = []
             for fold in range(1, self.kinfacew_n_folds + 1):
                 test_loader, _ = loader_gen.get_data_loader(
                     fold=fold,
@@ -487,16 +488,10 @@ class FamilyDeepTrainer:
                 metrics = evaluator.get_metrics(self.target_metric)
                 evaluator.save_best_metrics()
                 fold_metrics.append(_scalar_metrics(metrics))
-            pair_results[pair_type] = {
-                "metrics": {
-                    "acc": float(np.mean([item["acc"] for item in fold_metrics])),
-                    "recall": float(np.mean([item["recall"] for item in fold_metrics])),
-                    "precision": float(np.mean([item["precision"] for item in fold_metrics])),
-                    "f1-score": float(np.mean([item["f1-score"] for item in fold_metrics])),
-                    "auc": float(np.mean([item["auc"] for item in fold_metrics])),
-                },
-                "fold_metrics": fold_metrics,
-            }
+                fold_evaluators.append(evaluator)
+            pair_evaluator = KinshipEvaluator("TEST", pair_type, self.logs_dir)
+            pair_metrics = pair_evaluator.get_kinface_pair_metrics(fold_evaluators, pair_type)
+            pair_results[pair_type] = {"metrics": _scalar_metrics(pair_metrics), "fold_metrics": fold_metrics}
         summary = {
             "algorithm": "family-deep",
             "mode": "test",

@@ -68,7 +68,7 @@ def run_family_deep(
     if mode not in {"train", "test", "demo"}:
         raise ValueError("mode must be one of: train, test, demo")
     if pair_types is None:
-        resolved_pair_types = ["fd", "ms", "md", "fs"]
+        resolved_pair_types = [pair_type.lower()]
     else:
         resolved_pair_types = [pair.lower() for pair in pair_types]
         invalid = sorted(set(resolved_pair_types) - {"fd", "fs", "md", "ms"})

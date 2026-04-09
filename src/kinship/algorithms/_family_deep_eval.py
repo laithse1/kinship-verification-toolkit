@@ -17,6 +17,25 @@ def save_json(path: Path, data: dict) -> None:
         json.dump(data, handle, indent=2)
 
 
+def _prediction_payload(scores: list[float], labels: list[float], threshold: float = 0.5) -> dict:
+    scores_arr = np.asarray(scores, dtype=np.float64)
+    labels_arr = np.asarray(labels, dtype=np.int64)
+    predictions = (scores_arr > threshold).astype(np.int64)
+    return {
+        "threshold": float(threshold),
+        "scores": list(map(float, scores_arr.tolist())),
+        "labels": list(map(int, labels_arr.tolist())),
+        "predictions": list(map(int, predictions.tolist())),
+        "counts": {
+            "samples": int(labels_arr.size),
+            "positive_labels": int(labels_arr.sum()),
+            "negative_labels": int(labels_arr.size - labels_arr.sum()),
+            "positive_predictions": int(predictions.sum()),
+            "negative_predictions": int(predictions.size - predictions.sum()),
+        },
+    }
+
+
 class KinshipEvaluator:
     def __init__(self, set_name: str, pair: str, log_path: Path, fold: int | None = None):
         plt.ioff()
@@ -124,6 +143,12 @@ class KinshipEvaluator:
         payload["precision_curve"] = list(map(float, precision_curve))
         payload["recall_curve"] = list(map(float, recall_curve))
         payload["thresholds"] = list(map(float, thresholds))
+        if self.best_model_scores is not None and self.best_model_labels is not None:
+            payload["prediction_export"] = _prediction_payload(
+                self.best_model_scores,
+                self.best_model_labels,
+                threshold=0.5,
+            )
         save_json(self.log_path / f"{log_name}.json", payload)
 
     def get_kinface_pair_metrics(self, evaluators: list["KinshipEvaluator"], pair_type: str) -> dict:
@@ -166,5 +191,6 @@ class KinshipEvaluator:
         pair_metrics["precision_curve"] = list(map(float, pair_precisions))
         pair_metrics["recall_curve"] = list(map(float, pair_recalls))
         pair_metrics["thresholds"] = list(map(float, pair_thresholds))
+        pair_metrics["prediction_export"] = _prediction_payload(scores, labels, threshold=0.5)
         save_json(self.log_path / f"{pair_type}.json", pair_metrics)
         return pair_metrics
