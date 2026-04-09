@@ -5,7 +5,7 @@
 ![Toolkit](https://img.shields.io/badge/Toolkit-Unified%20Experiments-1F2937?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Repo%20Ready-2E8B57?style=for-the-badge)
 
-![alt text](assests/Kinship-verification.png)
+![alt text](assets/Kinship-verification.png)
 
 A unified research toolkit for **kinship verification from face imagery**.
 
