@@ -1,0 +1,148 @@
+name = "relation-aware-ms-tuning"
+description = "Focused tuning sweep for the relation-aware mother-son model, emphasizing calibration and cross-relation transfer behavior."
+tags = ["relation-aware", "ms", "tuning", "kinfacew"]
+
+[[experiments]]
+name = "relation-aware-ms-quality"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+support_relations = "all"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+ranking_loss_weight = 0.1
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "relation-aware-ms-target-only"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+support_relations = "target-only"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+ranking_loss_weight = 0.1
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "relation-aware-ms-prcal"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+support_relations = "all"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "f1"
+model_selection_metric = "pr_auc"
+ranking_loss_weight = 0.1
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "relation-aware-ms-epochs2"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+support_relations = "all"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 2
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+ranking_loss_weight = 0.1
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "relation-aware-ms-rank02"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+support_relations = "all"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+ranking_loss_weight = 0.2
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120

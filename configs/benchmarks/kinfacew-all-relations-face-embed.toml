@@ -1,0 +1,51 @@
+name = "kinfacew-all-relations-face-embed"
+description = "Official-fold KinFaceW-II evaluation across all four parent-child relations using the face-embedding threshold baseline."
+tags = ["face-embed", "kinfacew-ii", "all-relations", "paper-revision"]
+
+[[experiments]]
+name = "face-embed-vggface-fd"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fd"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32
+
+[[experiments]]
+name = "face-embed-vggface-fs"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32
+
+[[experiments]]
+name = "face-embed-vggface-md"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "md"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32
+
+[[experiments]]
+name = "face-embed-vggface-ms"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32

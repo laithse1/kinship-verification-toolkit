@@ -1,0 +1,116 @@
+name = "best-modern-per-relation"
+description = "Best observed maintained modern model per KinFaceW-II relation based on current benchmark evidence."
+tags = ["modern", "best-known", "relation-wise", "kinfacew"]
+
+[[experiments]]
+name = "relation-aware-fd-quality"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fd"
+support_relations = "all"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+ranking_loss_weight = 0.1
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "relation-aware-fs-quality"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+support_relations = "all"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+ranking_loss_weight = 0.1
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "relation-aware-md-quality"
+algorithm = "relation-aware"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "md"
+support_relations = "all"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+relation_dim = 8
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+ranking_loss_weight = 0.1
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "facornet-ms-quality"
+algorithm = "facornet"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120

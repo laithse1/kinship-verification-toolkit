@@ -1,0 +1,24 @@
+name = "forestnn-fs-smoke"
+algorithm = "forestnn"
+description = "Small native FNN-style smoke run on KinFaceW-II father-son."
+tags = ["forestnn", "kinfacew", "smoke"]
+
+[parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+global_backbone = "vggface-precomputed"
+fusion_model = "logreg"
+local_encoder = "residual"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+batch_size = 8
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 60

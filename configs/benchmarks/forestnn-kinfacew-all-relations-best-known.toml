@@ -1,0 +1,99 @@
+name = "forestnn-kinfacew-all-relations-best-known"
+description = "Best-known CPU-practical ForestNN hybrid sweep across all four KinFaceW-II relations using fused VGGFace and VGG-F global features."
+tags = ["forestnn", "kinfacew", "best-known", "all-relations"]
+
+[[experiments]]
+name = "forestnn-fd-best-known"
+algorithm = "forestnn"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fd"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+local_encoder = "residual"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "forestnn-fs-best-known"
+algorithm = "forestnn"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+local_encoder = "residual"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "forestnn-md-best-known"
+algorithm = "forestnn"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "md"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+local_encoder = "residual"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120
+
+[[experiments]]
+name = "forestnn-ms-best-known"
+algorithm = "forestnn"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+local_encoder = "residual"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120

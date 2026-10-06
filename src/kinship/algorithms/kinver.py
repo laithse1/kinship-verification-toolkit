@@ -203,16 +203,6 @@ def run_kinver(
     projected_by_fold: list[list[np.ndarray]] = []
     beta_by_fold: list[np.ndarray] = []
 
-    if use_feature_selection:
-        train_mask = fold != unique_folds[0]
-        tr_idxa = idxa[train_mask]
-        tr_idxb = idxb[train_mask]
-        tr_matches = matches[train_mask]
-        for feature_index, feat in enumerate(features):
-            merged = _merge_pairs(feat[tr_idxa], feat[tr_idxb])
-            ranking = _top_fisher_indices(merged, tr_matches, fisher_dims[relation])
-            features[feature_index] = feat[:, ranking]
-
     for current_fold in unique_folds:
         train_mask = fold != current_fold
         tr_idxa = idxa[train_mask]
@@ -224,11 +214,16 @@ def run_kinver(
 
         for feat in features:
             current = feat
+            if use_feature_selection:
+                merged = _merge_pairs(current[tr_idxa], current[tr_idxb])
+                ranking = _top_fisher_indices(merged, tr_matches, fisher_dims[relation])
+                current = current[:, ranking]
             if use_pca:
                 train_people = np.vstack([current[tr_idxa], current[tr_idxb]])
                 n_components = min(wdims[relation], train_people.shape[0], train_people.shape[1])
                 pca = PCA(n_components=n_components, svd_solver="full")
-                current = pca.fit_transform(current)
+                pca.fit(train_people)
+                current = pca.transform(current)
                 current = _normalize_rows(current)
             transformed_features.append(current)
             xa_pos.append(current[tr_idxa[tr_matches == 1]].T)

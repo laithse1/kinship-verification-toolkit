@@ -5,9 +5,22 @@ import json
 from pathlib import Path
 
 from kinship.algorithms.classical import run_classical_verification
+from kinship.algorithms.facornet_native import run_facornet
+from kinship.algorithms.face_embeddings import ALL_BACKBONES, run_face_embedding_verification
 from kinship.algorithms.family_deep_native import run_family_deep
+from kinship.algorithms.forestnn_native import (
+    ALIGNMENT_MODES,
+    FUSION_MODELS,
+    FUSION_TRAIN_SCOPES,
+    GLOBAL_BACKBONES,
+    LOCAL_ENCODERS,
+    MODEL_SELECTION_METRICS,
+    run_forestnn,
+)
+from kinship.benchmark_report import generate_benchmark_report
 from kinship.algorithms.gae_native import run_gae
 from kinship.algorithms.kinver import run_kinver
+from kinship.algorithms.relation_aware_native import SUPPORT_RELATION_MODES, run_relation_aware
 from kinship.configs import (
     benchmark_config_paths,
     experiment_config_paths,
@@ -85,6 +98,35 @@ def _kinver_payload(result) -> dict:
     }
 
 
+def _face_embed_command(args: argparse.Namespace) -> int:
+    parameters = {
+        "dataset": args.dataset,
+        "relation": args.relation,
+        "backbone": args.backbone,
+        "calibration_objective": args.calibration_objective,
+        "far_targets": args.far_targets,
+        "image_batch_size": args.image_batch_size,
+    }
+    config = _inline_experiment_config(
+        name=f"face-embed-{args.backbone}-{args.relation}",
+        algorithm="face-embed",
+        parameters=parameters,
+    )
+    if args.output_root:
+        run_info = run_experiment(config=config, output_root=Path(args.output_root))
+        _dump(
+            {
+                "run_dir": run_info["run_dir"],
+                "result": run_info["payload"]["result"],
+            }
+        )
+        return 0
+
+    result = run_face_embedding_verification(**parameters)
+    _dump(result.__dict__)
+    return 0
+
+
 def _family_deep_command(args: argparse.Namespace) -> int:
     parameters = {
         "mode": args.mode,
@@ -117,6 +159,138 @@ def _family_deep_command(args: argparse.Namespace) -> int:
         )
         return 0
     _dump(run_family_deep(**parameters, output_dir=args.output_dir))
+    return 0
+
+
+def _forestnn_command(args: argparse.Namespace) -> int:
+    parameters = {
+        "dataset": args.dataset,
+        "relation": args.relation,
+        "global_backbone": args.global_backbone,
+        "fusion_model": args.fusion_model,
+        "fusion_train_scope": args.fusion_train_scope,
+        "local_encoder": args.local_encoder,
+        "alignment_mode": args.alignment_mode,
+        "image_size": args.image_size,
+        "embedding_dim": args.embedding_dim,
+        "hidden_dim": args.hidden_dim,
+        "batch_size": args.batch_size,
+        "num_epochs": args.num_epochs,
+        "learning_rate": args.learning_rate,
+        "weight_decay": args.weight_decay,
+        "val_fraction": args.val_fraction,
+        "calibration_objective": args.calibration_objective,
+        "model_selection_metric": args.model_selection_metric,
+        "far_targets": args.far_targets,
+        "random_state": args.random_state,
+        "limit_pairs": args.limit_pairs,
+    }
+    config = _inline_experiment_config(
+        name=f"forestnn-{args.dataset}-{args.relation}",
+        algorithm="forestnn",
+        parameters=parameters,
+    )
+    if args.output_root:
+        run_info = run_experiment(config=config, output_root=Path(args.output_root))
+        _dump(
+            {
+                "run_dir": run_info["run_dir"],
+                "result": run_info["payload"]["result"],
+            }
+        )
+        return 0
+
+    result = run_forestnn(**parameters)
+    _dump(result.__dict__)
+    return 0
+
+
+def _facornet_command(args: argparse.Namespace) -> int:
+    parameters = {
+        "dataset": args.dataset,
+        "relation": args.relation,
+        "global_backbone": args.global_backbone,
+        "fusion_model": args.fusion_model,
+        "fusion_train_scope": args.fusion_train_scope,
+        "alignment_mode": args.alignment_mode,
+        "image_size": args.image_size,
+        "embedding_dim": args.embedding_dim,
+        "hidden_dim": args.hidden_dim,
+        "num_heads": args.num_heads,
+        "batch_size": args.batch_size,
+        "num_epochs": args.num_epochs,
+        "learning_rate": args.learning_rate,
+        "weight_decay": args.weight_decay,
+        "val_fraction": args.val_fraction,
+        "calibration_objective": args.calibration_objective,
+        "model_selection_metric": args.model_selection_metric,
+        "far_targets": args.far_targets,
+        "random_state": args.random_state,
+        "limit_pairs": args.limit_pairs,
+    }
+    config = _inline_experiment_config(
+        name=f"facornet-{args.dataset}-{args.relation}",
+        algorithm="facornet",
+        parameters=parameters,
+    )
+    if args.output_root:
+        run_info = run_experiment(config=config, output_root=Path(args.output_root))
+        _dump(
+            {
+                "run_dir": run_info["run_dir"],
+                "result": run_info["payload"]["result"],
+            }
+        )
+        return 0
+
+    result = run_facornet(**parameters)
+    _dump(result.__dict__)
+    return 0
+
+
+def _relation_aware_command(args: argparse.Namespace) -> int:
+    parameters = {
+        "dataset": args.dataset,
+        "relation": args.relation,
+        "support_relations": args.support_relations,
+        "global_backbone": args.global_backbone,
+        "fusion_model": args.fusion_model,
+        "fusion_train_scope": args.fusion_train_scope,
+        "alignment_mode": args.alignment_mode,
+        "image_size": args.image_size,
+        "embedding_dim": args.embedding_dim,
+        "hidden_dim": args.hidden_dim,
+        "relation_dim": args.relation_dim,
+        "num_heads": args.num_heads,
+        "batch_size": args.batch_size,
+        "num_epochs": args.num_epochs,
+        "learning_rate": args.learning_rate,
+        "weight_decay": args.weight_decay,
+        "val_fraction": args.val_fraction,
+        "calibration_objective": args.calibration_objective,
+        "model_selection_metric": args.model_selection_metric,
+        "ranking_loss_weight": args.ranking_loss_weight,
+        "far_targets": args.far_targets,
+        "random_state": args.random_state,
+        "limit_pairs": args.limit_pairs,
+    }
+    config = _inline_experiment_config(
+        name=f"relation-aware-{args.dataset}-{args.relation}",
+        algorithm="relation-aware",
+        parameters=parameters,
+    )
+    if args.output_root:
+        run_info = run_experiment(config=config, output_root=Path(args.output_root))
+        _dump(
+            {
+                "run_dir": run_info["run_dir"],
+                "result": run_info["payload"]["result"],
+            }
+        )
+        return 0
+
+    result = run_relation_aware(**parameters)
+    _dump(result.__dict__)
     return 0
 
 
@@ -241,8 +415,15 @@ def _benchmark_command(args: argparse.Namespace) -> int:
         {
             "run_dir": run_info["run_dir"],
             "summary_rows": run_info["summary_rows"],
+            "relation_winners": run_info["relation_winners"],
         }
     )
+    return 0
+
+
+def _report_benchmark_command(args: argparse.Namespace) -> int:
+    payload = generate_benchmark_report(Path(args.run_dir))
+    _dump(payload)
     return 0
 
 
@@ -307,6 +488,23 @@ def build_parser() -> argparse.ArgumentParser:
     kinver.add_argument("--output-root", default=None)
     kinver.set_defaults(func=_kinver_command)
 
+    face_embed = subparsers.add_parser(
+        "face-embed",
+        help="Run a face-embedding verification baseline with official KinFaceW folds",
+    )
+    face_embed.add_argument("--dataset", default="KinFaceW-II")
+    face_embed.add_argument("--relation", choices=["fd", "fs", "md", "ms"], required=True)
+    face_embed.add_argument("--backbone", choices=list(ALL_BACKBONES), default="vggface-precomputed")
+    face_embed.add_argument(
+        "--calibration-objective",
+        choices=["balanced_accuracy", "f1", "eer", "accuracy"],
+        default="balanced_accuracy",
+    )
+    face_embed.add_argument("--far-targets", nargs="+", type=float, default=[1e-3, 1e-2, 1e-1])
+    face_embed.add_argument("--image-batch-size", type=int, default=32)
+    face_embed.add_argument("--output-root", default=None)
+    face_embed.set_defaults(func=_face_embed_command)
+
     family_deep = subparsers.add_parser(
         "family-deep",
         help="Run the native deep-learning kinship family models",
@@ -338,6 +536,118 @@ def build_parser() -> argparse.ArgumentParser:
     family_deep.add_argument("--checkpoints-dir", default=None)
     family_deep.add_argument("--vgg-weights", default=None)
     family_deep.set_defaults(func=_family_deep_command)
+
+    forestnn = subparsers.add_parser(
+        "forestnn",
+        help="Run the native FNN-style kinship model over official KinFaceW folds",
+    )
+    forestnn.add_argument("--dataset", default="KinFaceW-II")
+    forestnn.add_argument("--relation", choices=["fd", "fs", "md", "ms"], required=True)
+    forestnn.add_argument(
+        "--global-backbone",
+        choices=list(GLOBAL_BACKBONES),
+        default="vggface-precomputed",
+    )
+    forestnn.add_argument(
+        "--fusion-model",
+        choices=list(FUSION_MODELS),
+        default="engineered-logreg",
+    )
+    forestnn.add_argument("--fusion-train-scope", choices=list(FUSION_TRAIN_SCOPES), default="trainpool")
+    forestnn.add_argument("--local-encoder", choices=list(LOCAL_ENCODERS), default="residual")
+    forestnn.add_argument("--alignment-mode", choices=list(ALIGNMENT_MODES), default="adaptive")
+    forestnn.add_argument("--image-size", type=int, default=64)
+    forestnn.add_argument("--embedding-dim", type=int, default=64)
+    forestnn.add_argument("--hidden-dim", type=int, default=96)
+    forestnn.add_argument("--batch-size", type=int, default=16)
+    forestnn.add_argument("--num-epochs", type=int, default=6)
+    forestnn.add_argument("--learning-rate", type=float, default=1e-3)
+    forestnn.add_argument("--weight-decay", type=float, default=1e-4)
+    forestnn.add_argument("--val-fraction", type=float, default=0.2)
+    forestnn.add_argument(
+        "--calibration-objective",
+        choices=["balanced_accuracy", "f1", "eer", "accuracy"],
+        default="balanced_accuracy",
+    )
+    forestnn.add_argument("--model-selection-metric", choices=list(MODEL_SELECTION_METRICS), default="roc_auc")
+    forestnn.add_argument("--far-targets", nargs="+", type=float, default=[1e-3, 1e-2, 1e-1])
+    forestnn.add_argument("--random-state", type=int, default=42)
+    forestnn.add_argument("--limit-pairs", type=int, default=None)
+    forestnn.add_argument("--output-root", default=None)
+    forestnn.set_defaults(func=_forestnn_command)
+
+    facornet = subparsers.add_parser(
+        "facornet",
+        help="Run a native FaCoRNet-inspired component-relation kinship model",
+    )
+    facornet.add_argument("--dataset", default="KinFaceW-II")
+    facornet.add_argument("--relation", choices=["fd", "fs", "md", "ms"], required=True)
+    facornet.add_argument("--global-backbone", choices=list(GLOBAL_BACKBONES), default="vggface+vggf-precomputed")
+    facornet.add_argument("--fusion-model", choices=list(FUSION_MODELS), default="engineered-logreg")
+    facornet.add_argument("--fusion-train-scope", choices=list(FUSION_TRAIN_SCOPES), default="trainpool")
+    facornet.add_argument("--alignment-mode", choices=list(ALIGNMENT_MODES), default="adaptive")
+    facornet.add_argument("--image-size", type=int, default=32)
+    facornet.add_argument("--embedding-dim", type=int, default=16)
+    facornet.add_argument("--hidden-dim", type=int, default=24)
+    facornet.add_argument("--num-heads", type=int, default=4)
+    facornet.add_argument("--batch-size", type=int, default=16)
+    facornet.add_argument("--num-epochs", type=int, default=1)
+    facornet.add_argument("--learning-rate", type=float, default=1e-3)
+    facornet.add_argument("--weight-decay", type=float, default=1e-4)
+    facornet.add_argument("--val-fraction", type=float, default=0.2)
+    facornet.add_argument(
+        "--calibration-objective",
+        choices=["balanced_accuracy", "f1", "eer", "accuracy"],
+        default="balanced_accuracy",
+    )
+    facornet.add_argument("--model-selection-metric", choices=list(MODEL_SELECTION_METRICS), default="roc_auc")
+    facornet.add_argument("--far-targets", nargs="+", type=float, default=[1e-3, 1e-2, 1e-1])
+    facornet.add_argument("--random-state", type=int, default=42)
+    facornet.add_argument("--limit-pairs", type=int, default=None)
+    facornet.add_argument("--output-root", default=None)
+    facornet.set_defaults(func=_facornet_command)
+
+    relation_aware = subparsers.add_parser(
+        "relation-aware",
+        help="Run the native relation-aware cross-relation kinship model",
+    )
+    relation_aware.add_argument("--dataset", default="KinFaceW-II")
+    relation_aware.add_argument("--relation", choices=["fd", "fs", "md", "ms"], required=True)
+    relation_aware.add_argument("--support-relations", choices=list(SUPPORT_RELATION_MODES), default="all")
+    relation_aware.add_argument(
+        "--global-backbone",
+        choices=list(GLOBAL_BACKBONES),
+        default="vggface+vggf-precomputed",
+    )
+    relation_aware.add_argument("--fusion-model", choices=list(FUSION_MODELS), default="engineered-logreg")
+    relation_aware.add_argument("--fusion-train-scope", choices=list(FUSION_TRAIN_SCOPES), default="trainpool")
+    relation_aware.add_argument("--alignment-mode", choices=list(ALIGNMENT_MODES), default="adaptive")
+    relation_aware.add_argument("--image-size", type=int, default=64)
+    relation_aware.add_argument("--embedding-dim", type=int, default=64)
+    relation_aware.add_argument("--hidden-dim", type=int, default=96)
+    relation_aware.add_argument("--relation-dim", type=int, default=16)
+    relation_aware.add_argument("--num-heads", type=int, default=4)
+    relation_aware.add_argument("--batch-size", type=int, default=16)
+    relation_aware.add_argument("--num-epochs", type=int, default=6)
+    relation_aware.add_argument("--learning-rate", type=float, default=1e-3)
+    relation_aware.add_argument("--weight-decay", type=float, default=1e-4)
+    relation_aware.add_argument("--val-fraction", type=float, default=0.2)
+    relation_aware.add_argument(
+        "--calibration-objective",
+        choices=["accuracy", "balanced_accuracy", "f1"],
+        default="balanced_accuracy",
+    )
+    relation_aware.add_argument(
+        "--model-selection-metric",
+        choices=list(MODEL_SELECTION_METRICS),
+        default="roc_auc",
+    )
+    relation_aware.add_argument("--ranking-loss-weight", type=float, default=0.10)
+    relation_aware.add_argument("--far-targets", nargs="+", type=float, default=[1e-3, 1e-2, 1e-1])
+    relation_aware.add_argument("--random-state", type=int, default=42)
+    relation_aware.add_argument("--limit-pairs", type=int, default=None)
+    relation_aware.add_argument("--output-root", default=None)
+    relation_aware.set_defaults(func=_relation_aware_command)
 
     gae = subparsers.add_parser(
         "gae",
@@ -375,6 +685,13 @@ def build_parser() -> argparse.ArgumentParser:
     benchmark.add_argument("config")
     benchmark.add_argument("--output-root", default=None)
     benchmark.set_defaults(func=_benchmark_command)
+
+    report_benchmark = subparsers.add_parser(
+        "report-benchmark",
+        help="Generate publication-friendly tables and plots from an existing benchmark run directory",
+    )
+    report_benchmark.add_argument("run_dir")
+    report_benchmark.set_defaults(func=_report_benchmark_command)
 
     mydataset = subparsers.add_parser(
         "mydataset",

@@ -1,0 +1,26 @@
+name = "facornet-fs-quality"
+algorithm = "facornet"
+description = "CPU-practical quality FaCoRNet-inspired run on KinFaceW-II father-son."
+tags = ["facornet", "quality", "kinfacew"]
+
+[parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+global_backbone = "vggface+vggf-precomputed"
+fusion_model = "engineered-logreg"
+fusion_train_scope = "trainpool"
+alignment_mode = "adaptive"
+image_size = 32
+embedding_dim = 16
+hidden_dim = 24
+num_heads = 4
+batch_size = 16
+num_epochs = 1
+learning_rate = 0.001
+weight_decay = 0.0001
+val_fraction = 0.2
+calibration_objective = "balanced_accuracy"
+model_selection_metric = "roc_auc"
+far_targets = [0.001, 0.01, 0.1]
+random_state = 42
+limit_pairs = 120

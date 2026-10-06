@@ -1,0 +1,12 @@
+name = "face-embed-vggf-fs"
+algorithm = "face-embed"
+description = "Face-embedding threshold baseline on KinFaceW-II father-son using precomputed VGG-F embeddings and official folds."
+tags = ["face-embed", "kinfacew-ii", "fs", "modern-baseline"]
+
+[parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+backbone = "vggf-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32

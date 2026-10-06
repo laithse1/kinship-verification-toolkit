@@ -27,7 +27,19 @@ from kinship.algorithms._family_deep_models import (
 
 def _scalar_metrics(metrics: dict) -> dict[str, float]:
     result: dict[str, float] = {}
-    for key in ("acc", "recall", "precision", "f1-score", "auc", "best_threshold"):
+    for key in (
+        "acc",
+        "accuracy",
+        "balanced_accuracy",
+        "recall",
+        "precision",
+        "f1-score",
+        "auc",
+        "pr_auc",
+        "roc_auc",
+        "eer",
+        "best_threshold",
+    ):
         if key in metrics and isinstance(metrics[key], (int, float, np.floating)):
             result[key] = float(metrics[key])
     return result
@@ -568,3 +580,4 @@ class FamilyDeepTrainer:
         }
         self._write_summary("family_deep_demo_summary", result)
         return result
+

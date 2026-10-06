@@ -1,0 +1,127 @@
+name = "paper-revision-kinfacew-all-relations"
+description = "Paper-oriented KinFaceW-II benchmark across all four relations for classical, KinVer, and face-embedding baselines."
+tags = ["paper-revision", "kinfacew-ii", "all-relations", "comparison"]
+
+[[experiments]]
+name = "classical-fd-kfold"
+algorithm = "classical"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fd"
+method = "kfold"
+
+[[experiments]]
+name = "kinver-fd"
+algorithm = "kinver"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fd"
+iterations = 4
+knn = 6
+
+[[experiments]]
+name = "face-embed-vggface-fd"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fd"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32
+
+[[experiments]]
+name = "classical-fs-kfold"
+algorithm = "classical"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+method = "kfold"
+
+[[experiments]]
+name = "kinver-fs"
+algorithm = "kinver"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+iterations = 4
+knn = 6
+
+[[experiments]]
+name = "face-embed-vggface-fs"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "fs"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32
+
+[[experiments]]
+name = "classical-md-kfold"
+algorithm = "classical"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "md"
+method = "kfold"
+
+[[experiments]]
+name = "kinver-md"
+algorithm = "kinver"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "md"
+iterations = 4
+knn = 6
+
+[[experiments]]
+name = "face-embed-vggface-md"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "md"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32
+
+[[experiments]]
+name = "classical-ms-kfold"
+algorithm = "classical"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+method = "kfold"
+
+[[experiments]]
+name = "kinver-ms"
+algorithm = "kinver"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+iterations = 4
+knn = 6
+
+[[experiments]]
+name = "face-embed-vggface-ms"
+algorithm = "face-embed"
+
+[experiments.parameters]
+dataset = "KinFaceW-II"
+relation = "ms"
+backbone = "vggface-precomputed"
+calibration_objective = "balanced_accuracy"
+far_targets = [0.001, 0.01, 0.1]
+image_batch_size = 32

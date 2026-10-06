@@ -37,7 +37,7 @@ That makes this toolkit valuable as a research platform for:
 
 ## What This Toolkit Does
 
-The toolkit provides a single Python interface for four major algorithm families:
+The toolkit provides a single Python interface for five major algorithm families:
 
 - `classical`
   - Handcrafted feature pipelines derived from classical HOG/LBP-style kinship verification work
@@ -48,6 +48,15 @@ The toolkit provides a single Python interface for four major algorithm families
 - `family-deep`
   - Native deep learning kinship pipeline for `kinfacew` and `fiw`
   - Supports train, test, and demo-style execution through one CLI
+- `forestnn`
+  - Native modern kinship-specific multi-view model inspired by recent Forest Neural Network style work
+  - Combines adaptive facial-part alignment, a stronger local residual encoder, bundled global face embeddings, and engineered score fusion for a stronger hybrid verifier
+- `facornet`
+  - Native modern kinship-specific component-relation model inspired by recent face-component relation learning work
+  - Uses component-wise cross-attention with hybrid global fusion for a contemporary maintained comparator to ForestNN
+- `relation-aware`
+  - Native relation-conditioned hybrid model introduced in this toolkit as a stronger modern contribution
+  - Trains each target relation with optional cross-relation support from the other KinFaceW-II families and combines component attention, global embeddings, and ranking-aware optimization
 - `gae`
   - Native Gated Autoencoder style feature-mapper for pairwise representation learning
   - Supports `standard` and `multiview`
@@ -112,21 +121,25 @@ flowchart TD
     D2[KinVer Feature Matrices]
     D3[GAE Pair Feature Files]
     D4[Local FIW FIDs Images and Metadata]
+    D5[Bundled VGGFace and VGG-F Pair Embeddings]
 
     A1[Classical Pipeline]
     A2[KinVer Pipeline]
     A3[Family-Deep Pipeline]
-    A4[GAE Pipeline]
+    A4[ForestNN Hybrid Pipeline]
+    A5[GAE Pipeline]
 
     F1[Patch / HOG / LBP Pair Features]
     F2[Feature Fusion + Selection + PCA + MNRML]
     F3[Pairwise CNN / Siamese / Deep Embeddings]
-    F4[Gated Pair Representation Learning]
+    F4[Facial Part Views + Hybrid Global Branch]
+    F5[Gated Pair Representation Learning]
 
     M1[SVM / Verification Score]
     M2[Metric-Learning Classification]
     M3[Kin / Non-Kin Probability]
-    M4[Mapped Pair Representations]
+    M4[Kin / Non-Kin Probability]
+    M5[Mapped Pair Representations]
 
     O[Outputs: JSON, CSV, Plots, Checkpoints, .mat Files]
 
@@ -138,17 +151,21 @@ flowchart TD
     R --> A2
     R --> A3
     R --> A4
+    R --> A5
 
     D1 --> A1
     D1 --> A3
     D2 --> A2
     D3 --> A4
     D4 --> A3
+    D1 --> A4
+    D5 --> A4
 
     A1 --> F1 --> M1 --> O
     A2 --> F2 --> M2 --> O
     A3 --> F3 --> M3 --> O
     A4 --> F4 --> M4 --> O
+    A5 --> F5 --> M5 --> O
 ```
 
 ### What Each Branch Means
@@ -165,6 +182,14 @@ flowchart TD
   - starts from paired face images
   - learns similarity through native deep models
   - produces kin / non-kin predictions, metrics, and checkpoints
+- `forestnn`
+  - starts from paired face images plus bundled face embeddings
+  - builds facial-part views and a kinship-specific hybrid comparison model
+  - returns fold-wise verification metrics under the official KinFaceW protocol
+- `relation-aware`
+  - starts from paired face images plus bundled face embeddings across all four KinFaceW-II relations
+  - conditions the verifier on kin relation identity and can borrow supervision from non-target relations during training
+  - returns target-relation fold-wise verification metrics under the official protocol
 - `gae`
   - starts from left/right pair feature matrices
   - learns gated pairwise structure representations
@@ -212,6 +237,7 @@ The repository already includes the runtime data needed for the maintained paths
 
 - `classical`
 - `kinver`
+- `forestnn`
 - `gae`
 - `family-deep` on `kinfacew`
 
@@ -250,6 +276,18 @@ See [data/README.md](data/README.md) for the bundled data note.
 
 ## Installation
 
+All commands in this README assume your shell is currently inside the repository root:
+
+```powershell
+cd "D:\My D drive 2024-Oct\MyDevSpace\Research project\Kinship project\kinship-python-toolkit"
+```
+
+If you launch commands from the parent folder instead, call the script as:
+
+```powershell
+python ".\kinship-python-toolkit\run_kinship.py" list
+```
+
 ### 1. Create and activate a Python environment
 
 ```powershell
@@ -277,6 +315,12 @@ python run_kinship.py list
 ```
 
 ## Step-by-Step Usage
+
+Before running the commands below, make sure you are inside `kinship-python-toolkit/` and set:
+
+```powershell
+$env:PYTHONPATH="src"
+```
 
 ## 1. See what the toolkit can run
 
@@ -334,7 +378,75 @@ To run the multiview variant:
 python run_kinship.py run-config gae-fs-train-p16-multiview
 ```
 
-## 5. Train the native deep kinship model on KinFaceW
+## 5. Run the modern ForestNN-style hybrid kinship model
+
+```powershell
+python run_kinship.py forestnn --dataset KinFaceW-II --relation fs --global-backbone vggface+vggf-precomputed --fusion-model engineered-logreg --local-encoder residual --alignment-mode adaptive --image-size 32 --embedding-dim 16 --hidden-dim 24 --num-epochs 1 --limit-pairs 120
+```
+
+What this does:
+
+- loads official KinFaceW-II father-son folds
+- estimates a tighter face-centered frame for each image before cropping facial-part views
+- encodes those local regions with a stronger residual patch encoder
+- fuses those local views with bundled VGGFace pair embeddings
+- fits the fusion/calibration stage on the full non-test pool for a stronger and more stable global scorer
+- selects model checkpoints using ranking quality instead of only thresholded validation accuracy
+- trains and evaluates a modern kinship-specific hybrid verifier
+- reports accuracy, balanced accuracy, ROC-AUC, PR-AUC, EER, and TAR@FAR
+
+For a quick config-driven smoke run:
+
+```powershell
+python run_kinship.py run-config forestnn-fs-smoke
+```
+
+For the stronger quality-oriented preset:
+
+```powershell
+python run_kinship.py run-config forestnn-fs-quality
+```
+
+Relation-specific presets are also available:
+
+```powershell
+python run_kinship.py run-config forestnn-fd-quality
+python run_kinship.py run-config forestnn-fs-quality
+python run_kinship.py run-config forestnn-md-quality
+python run_kinship.py run-config forestnn-ms-quality
+```
+
+For the most CPU-practical version of that path:
+
+```powershell
+python run_kinship.py run-config forestnn-fs-cpu-practical
+```
+
+## 6. Run the FaCoRNet-inspired component-relation model
+
+```powershell
+python run_kinship.py facornet --dataset KinFaceW-II --relation fs --global-backbone vggface+vggf-precomputed --fusion-model engineered-logreg --fusion-train-scope trainpool --alignment-mode adaptive --image-size 32 --embedding-dim 16 --hidden-dim 24 --num-heads 4 --num-epochs 1 --limit-pairs 120
+```
+
+For the quick smoke preset:
+
+```powershell
+python run_kinship.py run-config facornet-fs-smoke
+```
+
+For the stronger CPU-practical preset:
+
+```powershell
+python run_kinship.py run-config facornet-fs-quality
+```
+
+To run the new native relation-aware contribution on a target relation with cross-relation support:
+
+```powershell
+python run_kinship.py run-config relation-aware-fs-quality
+```
+
+## 7. Train the native deep kinship model on KinFaceW
 
 ```powershell
 python run_kinship.py run-config family-deep-kinfacew-small-siamese-train
@@ -347,7 +459,7 @@ What this does:
 - writes logs to `outputs/family-deep-real/train-logs`
 - saves fold checkpoints under `outputs/family-deep-real/checkpoints`
 
-## 6. Test the trained deep model
+## 8. Test the trained deep model
 
 ```powershell
 python run_kinship.py run-config family-deep-kinfacew-small-siamese-test
@@ -358,7 +470,7 @@ Important:
 - this test preset expects the fold checkpoints produced by the train preset
 - if checkpoints do not exist yet, run the train preset first
 
-## 7. Train the native deep kinship model on local FIW FIDs data
+## 9. Train the native deep kinship model on local FIW FIDs data
 
 ```powershell
 python run_kinship.py run-config family-deep-fiw-small-siamese-fs-train
@@ -372,7 +484,7 @@ What this does:
 - writes logs to `outputs/family-deep-fiw-real/train-logs`
 - saves pair-type checkpoints under `outputs/family-deep-fiw-real/checkpoints`
 
-## 8. Test the trained FIW model
+## 10. Test the trained FIW model
 
 ```powershell
 python run_kinship.py run-config family-deep-fiw-small-siamese-fs-test
@@ -390,7 +502,7 @@ python run_kinship.py family-deep --mode train --dataset-name fiw --data-path da
 python run_kinship.py family-deep --mode test --dataset-name fiw --data-path data/FIDs/FIDs --model-name small_siamese_face_model --bs 256 --pair-types fs --output-dir outputs/family-deep-fiw-fs/test-logs --checkpoints-dir outputs/family-deep-fiw-fs/checkpoints
 ```
 
-## 9. Run a benchmark preset
+## 11. Run a benchmark preset
 
 ```powershell
 python run_kinship.py benchmark native-ports
@@ -402,7 +514,90 @@ This benchmark runs representative native experiments and produces:
 - benchmark `summary.json`
 - benchmark `summary.csv`
 
-## 10. Summarize the private local dataset
+For the ForestNN hybrid benchmark smoke preset:
+
+```powershell
+python run_kinship.py benchmark forestnn-smoke
+```
+
+To compare the old and new local-branch choices directly:
+
+```powershell
+python run_kinship.py benchmark forestnn-alignment-ablation
+```
+
+To sweep the stronger quality path across all four KinFaceW-II relations:
+
+```powershell
+python run_kinship.py benchmark forestnn-kinfacew-all-relations-quality
+```
+
+To run the current best-known all-relations preset directly:
+
+```powershell
+python run_kinship.py benchmark forestnn-kinfacew-all-relations-best-known
+```
+
+To compare candidate settings per relation and emit automatic winners:
+
+```powershell
+python run_kinship.py benchmark forestnn-relation-wise-candidates
+```
+
+To compare the strongest maintained modern models across all four relations:
+
+```powershell
+python run_kinship.py benchmark modern-kinship-all-relations
+```
+
+To run the current best observed maintained model per relation:
+
+```powershell
+python run_kinship.py benchmark best-modern-per-relation
+```
+
+To evaluate the new relation-aware model across all four KinFaceW-II relations:
+
+```powershell
+python run_kinship.py benchmark relation-aware-kinfacew-all-relations
+```
+
+That benchmark now writes:
+
+- `summary.csv`
+- `summary.json`
+- `relation_winners.json`
+- `relation_winners.txt`
+- `paper_summary.csv`
+- `paper_summary.md`
+
+Current modern benchmark note:
+
+- on the upgraded relation-aware runs, the new native relation-aware path is the strongest ROC-AUC performer for `fd`, `fs`, and `md`
+- the FaCoRNet-inspired path currently remains the strongest maintained choice for `ms`
+- the FaCoRNet-inspired path is still the fastest modern default for quick CPU iteration, while the relation-aware path is now the stronger paper-facing comparator
+
+Current relation-aware benchmark note:
+
+- the upgraded relation-aware hybrid reached `82.5%` mean accuracy and `0.8656` ROC-AUC on `KinFaceW-II fs`
+- on the latest four-relation run, it reached `0.7865` ROC-AUC on `fd`, `0.8656` on `fs`, `0.8819` on `md`, and `0.9074` on `ms`
+- the `ms` relation improved after the fusion upgrade but still trails the strongest FaCoRNet preset, so `ms` remains the clearest next optimization target
+
+## 12. Generate a publication-friendly report from a benchmark
+
+```powershell
+python run_kinship.py report-benchmark outputs\20260621T163718Z_forestnn-kinfacew-all-relations-best-known
+```
+
+This writes a `report/` folder under the benchmark run with:
+
+- `leaderboard.csv`
+- `leaderboard.md`
+- `figure_scorecard.png`
+- `figure_ranking_metrics.png`
+- `report.json`
+
+## 13. Summarize the private local dataset
 
 ```powershell
 python run_kinship.py mydataset summary
@@ -416,7 +611,7 @@ To export a JSON summary:
 python run_kinship.py mydataset summary --output-path outputs/mydataset/mydataset_summary.json
 ```
 
-## 11. Export manifests from the private local dataset
+## 14. Export manifests from the private local dataset
 
 Image-level inventory:
 
@@ -440,6 +635,8 @@ If you want the fastest path to confirm the repo is healthy:
 python run_kinship.py list
 python run_kinship.py run-config classical-fs-kfold-smoke
 python run_kinship.py run-config kinver-fs-smoke
+python run_kinship.py run-config forestnn-fs-smoke
+python run_kinship.py run-config relation-aware-fs-smoke
 python run_kinship.py run-config gae-fs-train-p16-standard
 python run_kinship.py run-config family-deep-kinfacew-small-siamese-train
 python run_kinship.py run-config family-deep-kinfacew-small-siamese-test
@@ -481,6 +678,8 @@ This structure is designed for:
 ```powershell
 python run_kinship.py run-config classical-fs-kfold-smoke
 python run_kinship.py run-config kinver-fs-smoke
+python run_kinship.py run-config forestnn-fs-smoke
+python run_kinship.py run-config relation-aware-fs-smoke
 python run_kinship.py run-config family-deep-kinfacew-small-siamese-test
 ```
 
